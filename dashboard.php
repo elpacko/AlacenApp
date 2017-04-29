@@ -4,11 +4,22 @@ include("conn.php");
 //echo print_r($_POST);
 if($_POST['setaction']=='addItem')
 {
+   $sqlpaquetes= "
+   insert into articulos 
+     (NombreArticulo,Tipo,InventarioMaximo,InventarioMinimo,inventario,ultimaCompra,siguienteExpirar) 
+     values ('".$_POST['NombreArticulo']."',
+     '".$_POST['Tipo']."',
+     ".$_POST['InventarioMaximo'].",
+     ".$_POST['InventarioMinimo'].",
+     ".$_POST['inventario'].", 
+     CURDATE(),
+     STR_TO_DATE('".$_POST['siguienteExpirar']."', '%m/%d/%Y')
+    )
+WHERE NOT EXISTS (SELECT * FROM articulos
+      WHERE NombreArticulo='".$_POST['NombreArticulo']."')
 
- 
-
-   $sqlpaquetes= "insert into articulos (NombreArticulo,Tipo,InventarioMaximo,InventarioMinimo,inventario,ultimaCompra,siguienteExpirar) values ('".$_POST['NombreArticulo']."','".$_POST['Tipo']."',".$_POST['InventarioMaximo'].",".$_POST['InventarioMinimo'].",".$_POST['inventario'].", CURDATE(),STR_TO_DATE('".$_POST['siguienteExpirar']."', '%m/%d/%Y'));";
-        $respaquetes=mysql_query($sqlpaquetes);
+;";
+   $respaquetes=mysql_query($sqlpaquetes);
 }
   ?>
   <!DOCTYPE html>
@@ -197,10 +208,15 @@ if($_POST['setaction']=='addItem')
                   <label for="inputEmail3" class="col-sm-2 control-label">Nombre del Articulo</label>
 
                   <div class="col-sm-10">
-                    <input type="text" name='NombreArticulo' class="form-control" id="inputEmail3" placeholder="Sopa, Tomate,...">
+                    <input type="text" name='NombreArticulo' class="form-control" id="NombreArticuloNuevo" onblur="validaNombre(this.value)" placeholder="Sopa, Tomate,...">
                   </div>
-                </div>
+                  
+                
 
+                </div>
+                <div class="alert alert-danger" role="alert" id="articuloExistenteDiv" style="display:none;">
+                  <strong>Caracoles!</strong> ese articulo ya existe en la alacena.
+                </div>
                 <div class="form-group">
                   <label for="inputPassword3" class="col-sm-2 control-label">Tipo</label>
 
@@ -504,6 +520,24 @@ if($_POST['setaction']=='addItem')
        setDate: new Date(),
       autoclose: true
     });
+    function validaNombre(nombreAValidar) {
+      $.ajax({
+          type: "POST",
+          url: 'getArticulosExistentes.php',
+          data: {'NombreArticulo':nombreAValidar},
+          success: function(data) {
+            console.log(data);
+            if(data!=0){
+              $("#articuloExistenteDiv").slideDown();  
+            }
+            else{
+              $("#articuloExistenteDiv").slideUp();
+            }
+          }
+          
+        });
+      
+    }
 </script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 <?php
 include("conn.php");
 	$resultado = 'Usuario o password incorrectos';
-    $sql = "select NombreArticulo, (inventarioMinimo - inventario) as AComprar from articulos order by ultimaCompra;";
+    $sql = "select NombreArticulo, (inventarioMinimo - inventario) as AComprar from articulos where (inventarioMinimo - inventario) >0 order by ultimaCompra;";
     $row = mysql_query($sql,$conexion);
 	
 	if (!$row)
